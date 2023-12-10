@@ -1,12 +1,16 @@
 public class Bias implements NNPart{
 
     private double input;
-    private double bias;
     private double output;
-    private double d;
+    private double bias;
 
     public Bias() {
         this.bias = 0;
+    }
+    public Bias(Bias bias) {
+        this.input = bias.input;
+        this.output = bias.output;
+        this.bias = bias.bias;
     }
 
     @Override

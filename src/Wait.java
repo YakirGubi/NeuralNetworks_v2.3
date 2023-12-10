@@ -3,10 +3,14 @@ public class Wait implements NNPart{
     private double input;
     private double wait;
     private double output;
-    private double d;
 
     public Wait(double wait) {
         this.wait = wait;
+    }
+    public Wait(Wait wait) {
+        this.input = wait.input;
+        this.wait = wait.wait;
+        this.output = wait.output;
     }
 
     @Override

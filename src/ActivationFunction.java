@@ -2,11 +2,17 @@ public class ActivationFunction implements NNPart{
 
     protected double input;
     protected double output;
-    protected double d;
     protected double loss;
 
     public ActivationFunction() {
     }
+
+    public ActivationFunction(ActivationFunction activationFunction) {
+        this.input = activationFunction.input;
+        this.output = activationFunction.output;
+        this.loss = activationFunction.loss;
+    }
+
 
     @Override
     public void setInput(double input) {

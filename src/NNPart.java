@@ -1,6 +1,6 @@
 public interface NNPart {
-    public void setInput(double input);
-    public double getInput();
-    public double getOutput();
-    public double d();
+    void setInput(double input);
+    double getInput();
+    double getOutput();
+    double d();
 }
