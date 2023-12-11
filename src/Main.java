@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args) {
         // making the NeuralNetwork in the size of 'size' index 0 it is the size of inputs and the last index is the
         // size of outputs and the mid are the size of the hidden layers
-        int[] size = {1,5,5,5};
+        int[] size = {1,5,5,5,1};
         NeuralNetworkClass neuralNetworkClass = new NeuralNetworkClass(size);
 
         //make a numbers for the training
@@ -21,9 +21,9 @@ public class Main {
                 System.out.println("**********");
             }
 
-//            neuralNetworkClass.learning(input[0],observed[0]);
-//            neuralNetworkClass.learning(input[1],observed[1]);
-//            neuralNetworkClass.learning(input[2],observed[2]);
+            neuralNetworkClass.learning(input[0],observed[0]);
+            neuralNetworkClass.learning(input[1],observed[1]);
+            neuralNetworkClass.learning(input[2],observed[2]);
 
             i++;
             System.out.println(neuralNetworkClass.getSSR());
