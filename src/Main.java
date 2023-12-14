@@ -11,7 +11,7 @@ public class Main {
 
         // train the AI until is SSR is low or the AI train num of times
         double SSR = 10;
-        for(int i = 0 ; i < 100000 && SSR > 0.001 ; i++){
+        for(int i = 0 ; i < 100000 && SSR > 0.00001 ; i++){
             SSR = 0;
             for(int j = 0 ; j < input.length ; j++){
                 System.out.println("input: " + input[j][0]);
@@ -25,6 +25,7 @@ public class Main {
                 System.out.println("**********");
             }
             System.out.println(SSR);
+            System.out.println(i);
         }
     }
 }

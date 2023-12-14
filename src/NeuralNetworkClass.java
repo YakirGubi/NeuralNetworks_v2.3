@@ -183,7 +183,7 @@ public class NeuralNetworkClass {
                                                 this.activationFunctions[i][k].d() * this.learningRate);
                 }
                 if(i != 0) {
-                    int sum = 0;
+                    double sum = 0;
                     for(int k = 0 ; k < this.waits[i][j].length ; k++){
                         sum += this.waits[i][j][k].getOriginalWait() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
                     }
