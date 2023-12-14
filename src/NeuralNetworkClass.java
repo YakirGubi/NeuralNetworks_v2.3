@@ -8,7 +8,7 @@ public class NeuralNetworkClass {
     private Wait[][][] waits;
     private Bias[][] bias;
     private ActivationFunction[][] activationFunctions;
-    private final double learningRate = 0.1;
+    private final double learningRate = 0.01;
     private double SSR; // (Sum of the Squared Residuals), the SSR told as how far the AI from completion
 
     // Make a NeuralNetworkClass (constructor)
@@ -142,15 +142,11 @@ public class NeuralNetworkClass {
 
         for(int i = 0 ; i < this.waits.length ; i++){
 
-            if(i == 0){
-                for(int j = 0 ; j < this.waits[i].length ; j++){
-                    for(int k = 0 ; k < this.waits[i][j].length ; k++){
+            for(int j = 0 ; j < this.waits[i].length ; j++){
+                for(int k = 0 ; k < this.waits[i][j].length ; k++){
+                    if(i == 0){
                         this.waits[i][j][k].setInput(this.inputs[j]);
-                    }
-                }
-            }else {
-                for(int j = 0 ; j < this.waits[i].length ; j++){
-                    for(int k = 0 ; k < this.waits[i][j].length ; k++){
+                    }else {
                         this.waits[i][j][k].setInput(this.activationFunctions[i-1][j].getOutput());
                     }
                 }
@@ -172,8 +168,7 @@ public class NeuralNetworkClass {
         this.setInputs(inputs);
         this.getOutputs();
         this.setSSR(observed);
-
-        NeuralNetworkClass original = new NeuralNetworkClass(this);
+        this.setOriginals();
 
         for(int i = 0 ; i < this.activationFunctions[this.activationFunctions.length-1].length ; i++){
             this.activationFunctions[this.activationFunctions.length-1][i].setLoss(-2 * (observed[i] - this.activationFunctions[this.activationFunctions.length-1][i].getOutput()));
@@ -182,33 +177,39 @@ public class NeuralNetworkClass {
         for(int i = this.waits.length-1 ; i >= 0 ; i--){
             for(int j = 0 ; j < this.waits[i].length ; j++){
                 for(int k = 0 ; k < this.waits[i][j].length ; k++){
-//                    System.out.println("\\\\\\\\\\\\");
-//                    System.out.println(original.waits.length);
-//                    System.out.println(original.waits[i].length);
-//                    System.out.println(original.waits[i][j].length);
-//                    System.out.println(i);
-//                    System.out.println(j);
-//                    System.out.println(k);
-                    this.waits[i][j][k].setWait(original.waits[i][j][k].getWait() -
-                                                original.waits[i][j][k].d() *
-                                                this.activationFunctions[i][j].d() *
-                                                this.activationFunctions[i][j].getLoss() * this.learningRate);
-                }
-                this.bias[i][j].setBias(original.bias[i][j].getBias() - this.activationFunctions[i][j].getLoss() *
-                                                                        this.activationFunctions[i][j].d() *
-                                                                        this.learningRate);
-                int sum = 0;
-                for(int k = 0 ; k < this.waits[i][j].length ; k++){
-                    sum += original.waits[i][j][k].getWait() * this.activationFunctions[i][k].getLoss();
+                    this.waits[i][j][k].setWait(this.waits[i][j][k].getOriginalWait() -
+                                                this.waits[i][j][k].d() *
+                                                this.activationFunctions[i][k].getLoss() *
+                                                this.activationFunctions[i][k].d() * this.learningRate);
                 }
                 if(i != 0) {
+                    int sum = 0;
+                    for(int k = 0 ; k < this.waits[i][j].length ; k++){
+                        sum += this.waits[i][j][k].getOriginalWait() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
+                    }
                     this.activationFunctions[i - 1][j].setLoss(sum);
                 }
+            }
+            for(int j = 0 ; j < this.bias[i].length ; j++){
+                this.bias[i][j].setBias(this.bias[i][j].getOriginalBias() - this.activationFunctions[i][j].getLoss() *
+                                                                            this.activationFunctions[i][j].d() *
+                                                                            this.learningRate);
             }
         }
     }
 
-
+    private void setOriginals(){
+        for(int i = 0 ; i < this.waits.length ; i++){
+            for(int j = 0 ; j < this.waits[i].length ; j++){
+                for(int k = 0 ; k < this.waits[i][j].length ; k++){
+                    this.waits[i][j][k].setOriginalWait();
+                }
+            }
+            for(int j = 0 ; j < this.bias[i].length ; j++){
+                this.bias[i][j].setOriginalBias();
+            }
+        }
+    }
     private double getSumOfWaits(Wait[][] waits, int x){
         double sum = 0;
 

@@ -2,6 +2,7 @@ public class Wait implements NNPart{
 
     private double input;
     private double wait;
+    private double originalWait;
     private double output;
 
     public Wait(double wait) {
@@ -40,5 +41,13 @@ public class Wait implements NNPart{
 
     public void setWait(double wait) {
         this.wait = wait;
+    }
+
+    public double getOriginalWait() {
+        return originalWait;
+    }
+
+    public void setOriginalWait() {
+        this.originalWait = this.wait;
     }
 }

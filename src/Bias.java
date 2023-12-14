@@ -3,6 +3,7 @@ public class Bias implements NNPart{
     private double input;
     private double output;
     private double bias;
+    private double originalBias;
 
     public Bias() {
         this.bias = 0;
@@ -40,5 +41,13 @@ public class Bias implements NNPart{
 
     public void setBias(double bias) {
         this.bias = bias;
+    }
+
+    public double getOriginalBias() {
+        return originalBias;
+    }
+
+    public void setOriginalBias() {
+        this.originalBias = this.bias;
     }
 }
