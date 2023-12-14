@@ -1,23 +1,23 @@
-public class Wait implements NNPart{
+public class Weight implements NNPart{
 
     private double input;
-    private double wait;
+    private double weight;
     private double originalWait;
     private double output;
 
-    public Wait(double wait) {
-        this.wait = wait;
+    public Weight(double wait) {
+        this.weight = wait;
     }
-    public Wait(Wait wait) {
-        this.input = wait.input;
-        this.wait = wait.wait;
-        this.output = wait.output;
+    public Weight(Weight weight) {
+        this.input = weight.input;
+        this.weight = weight.weight;
+        this.output = weight.output;
     }
 
     @Override
     public void setInput(double input) {
         this.input = input;
-        this.output = this.input * this.wait;
+        this.output = this.input * this.weight;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class Wait implements NNPart{
         return this.input;
     }
 
-    public double getWait() {
-        return wait;
+    public double getWeight() {
+        return weight;
     }
 
-    public void setWait(double wait) {
-        this.wait = wait;
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     public double getOriginalWait() {
@@ -48,6 +48,6 @@ public class Wait implements NNPart{
     }
 
     public void setOriginalWait() {
-        this.originalWait = this.wait;
+        this.originalWait = this.weight;
     }
 }

@@ -5,34 +5,31 @@ public class NeuralNetworkClass {
 
     Random random = new Random();
     private double[] inputs;
-    private Wait[][][] waits;
-    private Bias[][] bias;
+    private Weight[][][] weights;
+    private Bias[][] biases;
     private ActivationFunction[][] activationFunctions;
     private final double learningRate = 0.01;
     private double SSR; // (Sum of the Squared Residuals), the SSR told as how far the AI from completion
 
     // Make a NeuralNetworkClass (constructor)
     // input: size: index 0 is the size of inputs, the last index is the size of outputs and the mid are the size of
-    //              the hidden layers, and the waits connects between a layer to the next layer
+    //              the hidden layers, and the weights connects between a layer to the next layer
     public NeuralNetworkClass(int[] size){
-        if(size.length > 1){
-            this.inputs = new double[size[0]];
+        if(size.length < 2) throw new CustomException("SIZE LENGTH MUST BE 2 OR HIGHER");
 
-            this.waits = new Wait[size.length-1][][];
-            this.bias = new Bias[size.length-1][];
-            this.activationFunctions = new ActivationFunction[size.length-1][];
+        this.inputs = new double[size[0]];
+        this.weights = new Weight[size.length-1][][];
+        this.biases = new Bias[size.length-1][];
+        this.activationFunctions = new ActivationFunction[size.length-1][];
 
-            for(int i = 1 ; i < size.length ; i++){
-                this.waits[i-1] = newWaits(size[i-1], size[i]);
-                this.bias[i-1] = newBias(size[i]);
-                if(i == size.length-1){
-                    this.activationFunctions[i-1] = newOutput(size[i]);
-                }else {
-                    this.activationFunctions[i-1] = newActivationFunction(size[i]);
-                }
+        for(int i = 1 ; i < size.length ; i++){
+            this.weights[i-1] = newWeights(size[i-1], size[i]);
+            this.biases[i-1] = newBias(size[i]);
+            if(i == size.length-1){
+                this.activationFunctions[i-1] = newOutput(size[i]);
+            }else {
+                this.activationFunctions[i-1] = newActivationFunction(size[i]);
             }
-        }else {
-            System.out.println("SIZE LENGTH MUST BE 2 OR HIGHER");
         }
     }
 
@@ -43,23 +40,23 @@ public class NeuralNetworkClass {
         // Copy inputs array
         this.inputs = Arrays.copyOf(network.inputs, network.inputs.length);
 
-        // Deep copy waits array
-        this.waits = new Wait[network.waits.length][][];
-        for (int i = 0; i < network.waits.length; i++) {
-            this.waits[i] = new Wait[network.waits[i].length][];
-            for (int j = 0; j < network.waits[i].length; j++) {
-                this.waits[i][j] = Arrays.copyOf(network.waits[i][j], network.waits[i][j].length);
-                for (int k = 0; k < network.waits[i][j].length; k++) {
-                    this.waits[i][j][k] = new Wait(network.waits[i][j][k]);
+        // Deep copy weights array
+        this.weights = new Weight[network.weights.length][][];
+        for (int i = 0; i < network.weights.length; i++) {
+            this.weights[i] = new Weight[network.weights[i].length][];
+            for (int j = 0; j < network.weights[i].length; j++) {
+                this.weights[i][j] = Arrays.copyOf(network.weights[i][j], network.weights[i][j].length);
+                for (int k = 0; k < network.weights[i][j].length; k++) {
+                    this.weights[i][j][k] = new Weight(network.weights[i][j][k]);
                 }
             }
         }
 
-        this.bias = new Bias[network.bias.length][];
-        for (int i = 0; i < network.bias.length; i++) {
-            this.bias[i] = Arrays.copyOf(network.bias[i], network.bias[i].length);
-            for (int j = 0; j < network.bias[i].length; j++) {
-                this.bias[i][j] = new Bias(network.bias[i][j]);
+        this.biases = new Bias[network.biases.length][];
+        for (int i = 0; i < network.biases.length; i++) {
+            this.biases[i] = Arrays.copyOf(network.biases[i], network.biases[i].length);
+            for (int j = 0; j < network.biases[i].length; j++) {
+                this.biases[i][j] = new Bias(network.biases[i][j]);
             }
         }
 
@@ -73,23 +70,23 @@ public class NeuralNetworkClass {
     }
 
 
-    // Make 2D array of wait, all the waits are a random number from -1 to 1
+    // Make 2D array of wait, all the weights are a random number from -1 to 1
     // inputs: columns: make the size of columns
     //         rows: make the size of rows
     // return: the new Wait 2D array
-    private Wait[][] newWaits(int columns, int rows){
-        Wait[][] waits = new Wait[columns][rows];
+    private Weight[][] newWeights(int columns, int rows){
+        Weight[][] waits = new Weight[columns][rows];
 
         for(int i = 0 ; i < columns ; i++){
             for(int j = 0 ; j < rows ; j++){
-                waits[i][j] = new Wait(this.random.nextDouble(-1,1));
+                waits[i][j] = new Weight(this.random.nextDouble(-1,1));
             }
         }
 
         return waits;
     }
 
-    // Make an array of Bias, all bias is equal to 0
+    // Make an array of Bias, all biases is equal to 0
     // inputs: size: make the size of the array
     // return: the new Bias array
     private Bias[] newBias(int size){
@@ -129,35 +126,32 @@ public class NeuralNetworkClass {
     }
 
     public void setInputs(double[] inputs) {
-        if(this.inputs.length == inputs.length) {
-            this.inputs = inputs;
-        }else {
-            System.out.println("INPUT SIZE NOT EQUAL");
-        }
+        if(this.inputs.length != inputs.length) throw new CustomException("INPUT SIZE NOT EQUAL");
+        this.inputs = inputs;
     }
 
     // this function calculates the NeuralNetwork
     // return: the array of outputs
     public ActivationFunction[] getOutputs() {
 
-        for(int i = 0 ; i < this.waits.length ; i++){
+        for(int i = 0; i < this.weights.length ; i++){
 
-            for(int j = 0 ; j < this.waits[i].length ; j++){
-                for(int k = 0 ; k < this.waits[i][j].length ; k++){
+            for(int j = 0; j < this.weights[i].length ; j++){
+                for(int k = 0; k < this.weights[i][j].length ; k++){
                     if(i == 0){
-                        this.waits[i][j][k].setInput(this.inputs[j]);
+                        this.weights[i][j][k].setInput(this.inputs[j]);
                     }else {
-                        this.waits[i][j][k].setInput(this.activationFunctions[i-1][j].getOutput());
+                        this.weights[i][j][k].setInput(this.activationFunctions[i-1][j].getOutput());
                     }
                 }
             }
 
-            for(int j = 0 ; j < this.bias[i].length ; j++){
-                this.bias[i][j].setInput(getSumOfWaits(this.waits[i], j));
+            for(int j = 0; j < this.biases[i].length ; j++){
+                this.biases[i][j].setInput(getSumOfWaits(this.weights[i], j));
             }
 
             for(int j = 0 ; j < this.activationFunctions[i].length ; j++){
-                this.activationFunctions[i][j].setInput(this.bias[i][j].getOutput());
+                this.activationFunctions[i][j].setInput(this.biases[i][j].getOutput());
             }
         }
 
@@ -174,24 +168,24 @@ public class NeuralNetworkClass {
             this.activationFunctions[this.activationFunctions.length-1][i].setLoss(-2 * (observed[i] - this.activationFunctions[this.activationFunctions.length-1][i].getOutput()));
         }
 
-        for(int i = this.waits.length-1 ; i >= 0 ; i--){
-            for(int j = 0 ; j < this.waits[i].length ; j++){
-                for(int k = 0 ; k < this.waits[i][j].length ; k++){
-                    this.waits[i][j][k].setWait(this.waits[i][j][k].getOriginalWait() -
-                                                this.waits[i][j][k].d() *
+        for(int i = this.weights.length-1; i >= 0 ; i--){
+            for(int j = 0; j < this.weights[i].length ; j++){
+                for(int k = 0; k < this.weights[i][j].length ; k++){
+                    this.weights[i][j][k].setWeight(this.weights[i][j][k].getOriginalWait() -
+                                                this.weights[i][j][k].d() *
                                                 this.activationFunctions[i][k].getLoss() *
                                                 this.activationFunctions[i][k].d() * this.learningRate);
                 }
                 if(i != 0) {
                     double sum = 0;
-                    for(int k = 0 ; k < this.waits[i][j].length ; k++){
-                        sum += this.waits[i][j][k].getOriginalWait() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
+                    for(int k = 0; k < this.weights[i][j].length ; k++){
+                        sum += this.weights[i][j][k].getOriginalWait() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
                     }
                     this.activationFunctions[i - 1][j].setLoss(sum);
                 }
             }
-            for(int j = 0 ; j < this.bias[i].length ; j++){
-                this.bias[i][j].setBias(this.bias[i][j].getOriginalBias() - this.activationFunctions[i][j].getLoss() *
+            for(int j = 0; j < this.biases[i].length ; j++){
+                this.biases[i][j].setBias(this.biases[i][j].getOriginalBias() - this.activationFunctions[i][j].getLoss() *
                                                                             this.activationFunctions[i][j].d() *
                                                                             this.learningRate);
             }
@@ -199,18 +193,18 @@ public class NeuralNetworkClass {
     }
 
     private void setOriginals(){
-        for(int i = 0 ; i < this.waits.length ; i++){
-            for(int j = 0 ; j < this.waits[i].length ; j++){
-                for(int k = 0 ; k < this.waits[i][j].length ; k++){
-                    this.waits[i][j][k].setOriginalWait();
+        for(int i = 0; i < this.weights.length ; i++){
+            for(int j = 0; j < this.weights[i].length ; j++){
+                for(int k = 0; k < this.weights[i][j].length ; k++){
+                    this.weights[i][j][k].setOriginalWait();
                 }
             }
-            for(int j = 0 ; j < this.bias[i].length ; j++){
-                this.bias[i][j].setOriginalBias();
+            for(int j = 0; j < this.biases[i].length ; j++){
+                this.biases[i][j].setOriginalBias();
             }
         }
     }
-    private double getSumOfWaits(Wait[][] waits, int x){
+    private double getSumOfWaits(Weight[][] waits, int x){
         double sum = 0;
 
         for(int i = 0 ; i < waits.length ; i++){

@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="89a0c9e0-87ae-47d9-9fb4-5725ccae6c9a" name="Changes" comment="fixing bugs" />
+    <list default="true" id="89a0c9e0-87ae-47d9-9fb4-5725ccae6c9a" name="Changes" comment="fixing bugs">
+      <change afterPath="$PROJECT_DIR$/src/CustomException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NeuralNetworkClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/NeuralNetworkClass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Wait.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Weight.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,7 +95,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702546613825</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fixing bugs">
+      <created>1702547441090</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1702547441090</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -110,16 +122,5 @@
     <MESSAGE value="exceptions" />
     <MESSAGE value="fixing bugs" />
     <option name="LAST_COMMIT_MESSAGE" value="fixing bugs" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/NeuralNetworkClass.java</url>
-          <line>186</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
