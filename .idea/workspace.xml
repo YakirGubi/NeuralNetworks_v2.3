@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="89a0c9e0-87ae-47d9-9fb4-5725ccae6c9a" name="Changes" comment="fixing bugs">
-      <change afterPath="$PROJECT_DIR$/src/CustomException.java" afterDir="false" />
+    <list default="true" id="89a0c9e0-87ae-47d9-9fb4-5725ccae6c9a" name="Changes" comment="CustomException">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ActivationFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ActivationFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Bias.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Bias.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/NeuralNetworkClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/NeuralNetworkClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Wait.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Weight.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Weight.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Weight.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +104,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702547441090</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="CustomException">
+      <created>1702560946860</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1702560946860</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -121,6 +130,7 @@
     <MESSAGE value="comments" />
     <MESSAGE value="exceptions" />
     <MESSAGE value="fixing bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing bugs" />
+    <MESSAGE value="CustomException" />
+    <option name="LAST_COMMIT_MESSAGE" value="CustomException" />
   </component>
 </project>

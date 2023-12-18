@@ -24,6 +24,9 @@ public class ActivationFunction implements NNPart{
         return this.input;
     }
 
+    public void setOutput(double output){
+        this.output = output;
+    }
     @Override
     public double getOutput() {
         return Math.log(1 + Math.pow(Math.E, this.input));

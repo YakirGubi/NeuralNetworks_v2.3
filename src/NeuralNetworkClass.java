@@ -9,20 +9,24 @@ public class NeuralNetworkClass {
     private Bias[][] biases;
     private ActivationFunction[][] activationFunctions;
     private final double learningRate = 0.01;
-    private double SSR; // (Sum of the Squared Residuals), the SSR told as how far the AI from completion
+    private double accuracy; // (Sum of the Squared Residuals), the accuracy told as how far the AI from completion
 
     // Make a NeuralNetworkClass (constructor)
     // input: size: index 0 is the size of inputs, the last index is the size of outputs and the mid are the size of
     //              the hidden layers, and the weights connects between a layer to the next layer
     public NeuralNetworkClass(int[] size){
-        if(size.length < 2) throw new CustomException("SIZE LENGTH MUST BE 2 OR HIGHER");
+        int minimumSize = 2;
+        if(size.length < minimumSize) throw new CustomException("SIZE LENGTH MUST BE 2 OR HIGHER");
 
+        if(size[0] <= 0) throw new CustomException("SIZE IN INDEX 0 MUST BE BIGGER THAN 0");
         this.inputs = new double[size[0]];
         this.weights = new Weight[size.length-1][][];
         this.biases = new Bias[size.length-1][];
         this.activationFunctions = new ActivationFunction[size.length-1][];
 
         for(int i = 1 ; i < size.length ; i++){
+            if(size[i] <= 0) throw new CustomException("SIZE IN INDEX " + i + " MUST BE BIGGER THAN 0");
+
             this.weights[i-1] = newWeights(size[i-1], size[i]);
             this.biases[i-1] = newBias(size[i]);
             if(i == size.length-1){
@@ -132,7 +136,8 @@ public class NeuralNetworkClass {
 
     // this function calculates the NeuralNetwork
     // return: the array of outputs
-    public ActivationFunction[] getOutputs() {
+    public void setOutputs(double[] inputs) {
+        setInputs(inputs);
 
         for(int i = 0; i < this.weights.length ; i++){
 
@@ -154,27 +159,35 @@ public class NeuralNetworkClass {
                 this.activationFunctions[i][j].setInput(this.biases[i][j].getOutput());
             }
         }
+    }
 
+    public ActivationFunction[] getOutputs(){
         return this.activationFunctions[this.activationFunctions.length-1];
     }
 
-    public void learning(double[] inputs, double[] observed){
-        this.setInputs(inputs);
-        this.getOutputs();
-        this.setSSR(observed);
-        this.setOriginals();
-
-        for(int i = 0 ; i < this.activationFunctions[this.activationFunctions.length-1].length ; i++){
-            this.activationFunctions[this.activationFunctions.length-1][i].setLoss(-2 * (observed[i] - this.activationFunctions[this.activationFunctions.length-1][i].getOutput()));
+    private void applyLosses(){
+        for(int i = 0 ; i < weights.length ; i++){
+            for(int j = 0 ; j < weights[i].length ; j++){
+                for(int k = 0 ; k < weights[i][j].length ; k++){
+                    this.weights[i][j][k].applyLoss();
+                }
+            }
+            for(int j = 0 ; j < biases[i].length ; j++){
+                this.biases[i][j].applyLoss();
+            }
         }
+    }
+
+
+    public void learning(){
+        this.setOriginals();
 
         for(int i = this.weights.length-1; i >= 0 ; i--){
             for(int j = 0; j < this.weights[i].length ; j++){
                 for(int k = 0; k < this.weights[i][j].length ; k++){
-                    this.weights[i][j][k].setWeight(this.weights[i][j][k].getOriginalWait() -
-                                                this.weights[i][j][k].d() *
-                                                this.activationFunctions[i][k].getLoss() *
-                                                this.activationFunctions[i][k].d() * this.learningRate);
+                    this.weights[i][j][k].addLoss(this.weights[i][j][k].d() *
+                                                  this.activationFunctions[i][k].getLoss() *
+                                                  this.activationFunctions[i][k].d() * this.learningRate);
                 }
                 if(i != 0) {
                     double sum = 0;
@@ -185,11 +198,54 @@ public class NeuralNetworkClass {
                 }
             }
             for(int j = 0; j < this.biases[i].length ; j++){
-                this.biases[i][j].setBias(this.biases[i][j].getOriginalBias() - this.activationFunctions[i][j].getLoss() *
-                                                                            this.activationFunctions[i][j].d() *
-                                                                            this.learningRate);
+                this.biases[i][j].addLoss(this.activationFunctions[i][j].getLoss() *
+                                          this.activationFunctions[i][j].d() *
+                                          this.learningRate);
             }
         }
+    }
+
+    public void softMax(){
+        double sum = 0;
+        for(int i = 0 ; i < this.activationFunctions[this.activationFunctions.length - 1].length ; i++){
+            sum += Math.exp(this.activationFunctions[this.activationFunctions.length - 1][i].getInput());
+        }
+
+        for(int i = 0 ; i < this.activationFunctions[this.activationFunctions.length - 1].length ; i++){
+            this.activationFunctions[this.activationFunctions.length - 1][i].setOutput(Math.exp(this.activationFunctions[this.activationFunctions.length - 1][i].getOutput()) / sum);
+        }
+    }
+
+    public double maxOfSoftMax(double[] outputs){
+        int bigger;
+        for(int i = 0 ; i < outputs.length ; i++){
+            bigger = i+1;
+           for(int j = i+1 ; j < outputs.length ; j++){
+               if(outputs[i] >= outputs[j]) bigger++;
+           }
+           if (bigger == outputs.length) return outputs[i];
+        }
+        return -1;
+    }
+
+    public void setCE(double[][] inputs, double[][] observed){
+        for(int i = 0 ; i < inputs.length ; i++) {
+            this.setOutputs(inputs[i]);
+            this.softMax();
+
+            double sum = 0;
+            for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
+                sum += -observed[i][j] * Math.log(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput());
+            }
+            this.accuracy = sum;
+
+            for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
+                this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput() - observed[i][j]);
+            }
+
+            this.learning();
+        }
+        this.applyLosses();
     }
 
     private void setOriginals(){
@@ -214,19 +270,26 @@ public class NeuralNetworkClass {
         return sum;
     }
 
-    // calculates the SSR (Sum of the Squared Residuals), the SSR told as how far the AI from completion
+    // calculates the accuracy (Sum of the Squared Residuals), the accuracy told as how far the AI from completion
     // inputs: observed: the observed it what we want the output will be
-    public void setSSR(double[] observed) {
-        double sum = 0;
+    public void setSSR(double[][] inputs, double[][] observed) {
+        for(int i = 0 ; i < inputs.length ; i++) {
+            this.setOutputs(inputs[i]);
+            double sum = 0;
 
-        for(int i = 0 ; i < observed.length ; i++){
-            sum += Math.pow(observed[i] - this.activationFunctions[this.activationFunctions.length-1][i].getOutput(),2);
+            for (int j = 0; j < observed[i].length; j++) {
+                sum += Math.pow(observed[i][j] - this.activationFunctions[this.activationFunctions.length - 1][j].getOutput(), 2);
+                this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(-2 * (observed[i][j] - this.activationFunctions[this.activationFunctions.length - 1][j].getOutput()));
+            }
+
+            this.accuracy = sum;
+
+            this.learning();
         }
-
-        this.SSR = sum;
+        this.applyLosses();
     }
 
-    public double getSSR() {
-        return SSR;
+    public double getAccuracy() {
+        return accuracy;
     }
 }
