@@ -174,10 +174,10 @@ public class NeuralNetworkClass {
             }
             for(int j = 0 ; j < biases[i].length ; j++){
                 this.biases[i][j].applyLoss();
+                this.activationFunctions[i][j].setLoss(0);
             }
         }
     }
-
 
     public void learning(){
         this.setOriginals();
@@ -216,38 +216,47 @@ public class NeuralNetworkClass {
         }
     }
 
-    public double maxOfSoftMax(double[] outputs){
+    public int maxOfSoftMax(double[] outputs){
         int bigger;
         for(int i = 0 ; i < outputs.length ; i++){
             bigger = i+1;
            for(int j = i+1 ; j < outputs.length ; j++){
                if(outputs[i] >= outputs[j]) bigger++;
            }
-           if (bigger == outputs.length) return outputs[i];
+           if (bigger == outputs.length) return i;
         }
         return -1;
     }
 
     public void setCE(double[][] inputs, double[][] observed){
+        this.accuracy = 0;
         for(int i = 0 ; i < inputs.length ; i++) {
-            this.setOutputs(inputs[i]);
-            this.softMax();
-
-            double sum = 0;
-            for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
-                sum += -observed[i][j] * Math.log(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput());
-            }
-            this.accuracy = sum;
-
-            for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
-                this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput() - observed[i][j]);
-            }
-
-            this.learning();
+            this.setCELosses(inputs[i], observed[i]);
         }
         this.applyLosses();
     }
 
+    public void setCE(double[] inputs, double[] observed){
+        this.accuracy = 0;
+        this.setCELosses(inputs, observed);
+        this.applyLosses();
+    }
+
+    private void setCELosses(double[] inputs, double[] observed){
+        this.setOutputs(inputs);
+        this.softMax();
+
+        for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
+            if(observed[j] == 1) {
+                this.accuracy -= Math.log(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput());
+            }
+            this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(
+                            this.activationFunctions[this.activationFunctions.length - 1][j].getLoss() +
+                            this.activationFunctions[this.activationFunctions.length - 1][j].getOutput() - observed[j]);
+        }
+
+        this.learning();
+    }
     private void setOriginals(){
         for(int i = 0; i < this.weights.length ; i++){
             for(int j = 0; j < this.weights[i].length ; j++){
@@ -273,20 +282,28 @@ public class NeuralNetworkClass {
     // calculates the accuracy (Sum of the Squared Residuals), the accuracy told as how far the AI from completion
     // inputs: observed: the observed it what we want the output will be
     public void setSSR(double[][] inputs, double[][] observed) {
+        this.accuracy = 0;
         for(int i = 0 ; i < inputs.length ; i++) {
-            this.setOutputs(inputs[i]);
-            double sum = 0;
-
-            for (int j = 0; j < observed[i].length; j++) {
-                sum += Math.pow(observed[i][j] - this.activationFunctions[this.activationFunctions.length - 1][j].getOutput(), 2);
-                this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(-2 * (observed[i][j] - this.activationFunctions[this.activationFunctions.length - 1][j].getOutput()));
-            }
-
-            this.accuracy = sum;
-
-            this.learning();
+            setSSRLoss(inputs[i], observed[i]);
         }
         this.applyLosses();
+    }
+
+    public void setSSR(double[] inputs, double[] observed) {
+        this.accuracy = 0;
+        setSSRLoss(inputs, observed);
+        this.applyLosses();
+    }
+
+    private void setSSRLoss(double[] inputs, double[] observed){
+        this.setOutputs(inputs);
+
+        for (int i = 0; i < observed.length; i++) {
+            this.accuracy += Math.pow(observed[i] - this.activationFunctions[this.activationFunctions.length - 1][i].getOutput(), 2);
+            this.activationFunctions[this.activationFunctions.length - 1][i].setLoss(-2 * (observed[i] - this.activationFunctions[this.activationFunctions.length - 1][i].getOutput()));
+        }
+
+        this.learning();
     }
 
     public double getAccuracy() {
