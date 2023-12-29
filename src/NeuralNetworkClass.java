@@ -1,15 +1,17 @@
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
-public class NeuralNetworkClass {
+public class NeuralNetworkClass implements Serializable{
 
     Random random = new Random();
     private double[] inputs;
     private Weight[][][] weights;
     private Bias[][] biases;
     private ActivationFunction[][] activationFunctions;
-    private final double learningRate = 0.01;
-    private double accuracy; // (Sum of the Squared Residuals), the accuracy told as how far the AI from completion
+    private final double learningRate = 0.001;
+    private double lost;
+    private double accuracy = 0;
 
     // Make a NeuralNetworkClass (constructor)
     // input: size: index 0 is the size of inputs, the last index is the size of outputs and the mid are the size of
@@ -180,7 +182,6 @@ public class NeuralNetworkClass {
     }
 
     public void learning(){
-        this.setOriginals();
 
         for(int i = this.weights.length-1; i >= 0 ; i--){
             for(int j = 0; j < this.weights[i].length ; j++){
@@ -192,7 +193,7 @@ public class NeuralNetworkClass {
                 if(i != 0) {
                     double sum = 0;
                     for(int k = 0; k < this.weights[i][j].length ; k++){
-                        sum += this.weights[i][j][k].getOriginalWait() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
+                        sum += this.weights[i][j][k].getWeight() * this.activationFunctions[i][k].getLoss() * this.activationFunctions[i][k].d();
                     }
                     this.activationFunctions[i - 1][j].setLoss(sum);
                 }
@@ -216,20 +217,20 @@ public class NeuralNetworkClass {
         }
     }
 
-    public int maxOfSoftMax(double[] outputs){
+    public int maxOfSoftMax(){
         int bigger;
-        for(int i = 0 ; i < outputs.length ; i++){
+        for(int i = 0 ; i < this.activationFunctions[this.activationFunctions.length - 1].length ; i++){
             bigger = i+1;
-           for(int j = i+1 ; j < outputs.length ; j++){
-               if(outputs[i] >= outputs[j]) bigger++;
-           }
-           if (bigger == outputs.length) return i;
+            for(int j = i+1 ; j < this.activationFunctions[this.activationFunctions.length - 1].length ; j++){
+                if(this.activationFunctions[this.activationFunctions.length - 1][i].getOutput() >= this.activationFunctions[this.activationFunctions.length - 1][j].getOutput()) bigger++;
+            }
+            if (bigger == this.activationFunctions[this.activationFunctions.length - 1].length) return i;
         }
         return -1;
     }
 
     public void setCE(double[][] inputs, double[][] observed){
-        this.accuracy = 0;
+        this.lost = 0;
         for(int i = 0 ; i < inputs.length ; i++) {
             this.setCELosses(inputs[i], observed[i]);
         }
@@ -237,7 +238,7 @@ public class NeuralNetworkClass {
     }
 
     public void setCE(double[] inputs, double[] observed){
-        this.accuracy = 0;
+        this.lost = 0;
         this.setCELosses(inputs, observed);
         this.applyLosses();
     }
@@ -248,7 +249,7 @@ public class NeuralNetworkClass {
 
         for (int j = 0; j < this.activationFunctions[this.activationFunctions.length - 1].length; j++) {
             if(observed[j] == 1) {
-                this.accuracy -= Math.log(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput());
+                this.lost -= Math.log(this.activationFunctions[this.activationFunctions.length - 1][j].getOutput());
             }
             this.activationFunctions[this.activationFunctions.length - 1][j].setLoss(
                             this.activationFunctions[this.activationFunctions.length - 1][j].getLoss() +
@@ -256,18 +257,6 @@ public class NeuralNetworkClass {
         }
 
         this.learning();
-    }
-    private void setOriginals(){
-        for(int i = 0; i < this.weights.length ; i++){
-            for(int j = 0; j < this.weights[i].length ; j++){
-                for(int k = 0; k < this.weights[i][j].length ; k++){
-                    this.weights[i][j][k].setOriginalWait();
-                }
-            }
-            for(int j = 0; j < this.biases[i].length ; j++){
-                this.biases[i][j].setOriginalBias();
-            }
-        }
     }
     private double getSumOfWaits(Weight[][] waits, int x){
         double sum = 0;
@@ -279,10 +268,10 @@ public class NeuralNetworkClass {
         return sum;
     }
 
-    // calculates the accuracy (Sum of the Squared Residuals), the accuracy told as how far the AI from completion
+    // calculates the lost (Sum of the Squared Residuals), the lost told as how far the AI from completion
     // inputs: observed: the observed it what we want the output will be
     public void setSSR(double[][] inputs, double[][] observed) {
-        this.accuracy = 0;
+        this.lost = 0;
         for(int i = 0 ; i < inputs.length ; i++) {
             setSSRLoss(inputs[i], observed[i]);
         }
@@ -290,7 +279,7 @@ public class NeuralNetworkClass {
     }
 
     public void setSSR(double[] inputs, double[] observed) {
-        this.accuracy = 0;
+        this.lost = 0;
         setSSRLoss(inputs, observed);
         this.applyLosses();
     }
@@ -299,14 +288,22 @@ public class NeuralNetworkClass {
         this.setOutputs(inputs);
 
         for (int i = 0; i < observed.length; i++) {
-            this.accuracy += Math.pow(observed[i] - this.activationFunctions[this.activationFunctions.length - 1][i].getOutput(), 2);
+            this.lost += Math.pow(observed[i] - this.activationFunctions[this.activationFunctions.length - 1][i].getOutput(), 2);
             this.activationFunctions[this.activationFunctions.length - 1][i].setLoss(-2 * (observed[i] - this.activationFunctions[this.activationFunctions.length - 1][i].getOutput()));
         }
 
         this.learning();
     }
 
+    public double getLost() {
+        return lost;
+    }
+
     public double getAccuracy() {
-        return accuracy;
+        return this.accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
     }
 }

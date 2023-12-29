@@ -17,7 +17,7 @@ public class Main {
                 for (int k = 0; k < neuralNetworkClass.getOutputs().length; k++) {
                     neuralNetworkClass.setSSR(input[j], observed[j]);
                     System.out.println(k + ": " + neuralNetworkClass.getOutputs()[k].toString());
-                    SSR += neuralNetworkClass.getAccuracy();
+                    SSR += neuralNetworkClass.getLost();
                     System.out.println("**********");
                 }
             }

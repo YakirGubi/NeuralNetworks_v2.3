@@ -2,7 +2,6 @@ public class Weight implements NNPart{
 
     private double input;
     private double weight;
-    private double originalWait;
     private double output;
     private double loss = 0;
 
@@ -44,13 +43,6 @@ public class Weight implements NNPart{
         this.weight = weight;
     }
 
-    public double getOriginalWait() {
-        return originalWait;
-    }
-
-    public void setOriginalWait() {
-        this.originalWait = this.weight;
-    }
     public void addLoss(double loss){
         this.loss += loss;
     }
